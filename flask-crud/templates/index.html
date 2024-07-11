@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Ümumi Məlumatlar</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ stats.total }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Aktiv</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ stats.active }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-header">Rezerv</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ stats.reserve }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-header">Boş</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ stats.empty }}</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="get" action="{{ url_for('index') }}">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" name="search" placeholder="Axtarış" value="{{ search }}">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="submit">Axtar</button>
+            </div>
+        </div>
+    </form>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="select-all"></th>
+                <th>ID</th>
+                <th>Nömrə</th>
+                <th>Ad və Soyad</th>
+                <th>İdarə</th>
+                <th>Şöbə Xidmət</th>
+                <th>Vəzifə</th>
+                <th>Alternativ Nömrə</th>
+                <th>Otaq Nömrəsi</th>
+                <th>Region</th>
+                <th>Qurum Adı</th>
+                <th>Kategoriya</th>
+                <th>Status</th>
+                <th>Əməliyyatlar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in entries.items %}
+            <tr>
+                <td><input type="checkbox" name="selected_entries" value="{{ entry.id }}"></td>
+                <td>{{ entry.id }}</td>
+                <td>{{ entry.nomre }}</td>
+                <td>{{ entry.ad_soyad }}</td>
+                <td>{{ entry.idare }}</td>
+                <td>{{ entry.soba_xidmet }}</td>
+                <td>{{ entry.vezife }}</td>
+                <td>{{ entry.alternativ_nomre }}</td>
+                <td>{{ entry.otaq_nomresi }}</td>
+                <td>{{ entry.region }}</td>
+                <td>{{ entry.qurum_adi }}</td>
+                <td>{{ entry.kategoriya }}</td>
+                <td>{{ entry.status }}</td>
+                <td>
+                    <a href="{{ url_for('add_edit', id=entry.id) }}" class="btn btn-sm btn-primary">Düzəliş et</a>
+                    <form action="{{ url_for('delete', id=entry.id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger">Sil</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <form action="{{ url_for('delete_selected') }}" method="post">
+        <button type="submit" class="btn btn-danger">Seçilmişləri sil</button>
+    </form>
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item {% if not entries.has_prev %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('index', page=entries.prev_num, search=search) }}" aria-label="Əvvəlki">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% for page_num in entries.iter_pages() %}
+            <li class="page-item {% if page_num == entries.page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('index', page=page_num, search=search) }}">{{ page_num }}</a>
+            </li>
+            {% endfor %}
+            <li class="page-item {% if not entries.has_next %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('index', page=entries.next_num, search=search) }}" aria-label="Növbəti">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+{% endblock %}

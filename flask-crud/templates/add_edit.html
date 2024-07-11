@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="col-md-12">
+        <h2>{{ 'Məlumatı Düzəliş Et' if form.nomre.data else 'Məlumat Əlavə Et' }}</h2>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.nomre.label(class="form-control-label") }}
+                {{ form.nomre(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.ad_soyad.label(class="form-control-label") }}
+                {{ form.ad_soyad(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.idare.label(class="form-control-label") }}
+                {{ form.idare(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.soba_xidmet.label(class="form-control-label") }}
+                {{ form.soba_xidmet(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.vezife.label(class="form-control-label") }}
+                {{ form.vezife(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.alternativ_nomre.label(class="form-control-label") }}
+                {{ form.alternativ_nomre(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.otaq_nomresi.label(class="form-control-label") }}
+                {{ form.otaq_nomresi(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.region.label(class="form-control-label") }}
+                {{ form.region(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.qurum_adi.label(class="form-control-label") }}
+                {{ form.qurum_adi(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.kategoriya.label(class="form-control-label") }}
+                {{ form.kategoriya(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.status.label(class="form-control-label") }}
+                {{ form.status(class="form-control") }}
+            </div>
+            <button type="submit" class="btn btn-success">{{ 'Düzəliş Et' if form.nomre.data else 'Əlavə Et' }}</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

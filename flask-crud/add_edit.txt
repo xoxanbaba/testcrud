@@ -1,0 +1,90 @@
+from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_sqlalchemy import SQLAlchemy
+from flask_bootstrap import Bootstrap
+from forms import EntryForm, LoginForm
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'gizli_anahtar'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///entries.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# SQLAlchemy ile veritabanı bağlantısı
+db = SQLAlchemy(app)
+
+# Bootstrap entegrasyonu
+Bootstrap(app)
+
+# Model tanımları
+class Entry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nomre = db.Column(db.String(20))
+    ad_soyad = db.Column(db.String(100))
+    idare = db.Column(db.String(100))
+    soba_xidmet = db.Column(db.String(100))
+    vezife = db.Column(db.String(100))
+    alternativ_nomre = db.Column(db.String(20))
+    otaq_nomresi = db.Column(db.String(20))
+    region = db.Column(db.String(100))
+    qurum_adi = db.Column(db.String(100))
+    kategoriya = db.Column(db.String(100))
+    status = db.Column(db.String(20))
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+
+# Formlar
+@app.route('/')
+def index():
+    entries = Entry.query.paginate(per_page=10)
+    stats = {
+        'total': Entry.query.count(),
+        'active': Entry.query.filter_by(status='aktiv').count(),
+        'reserve': Entry.query.filter_by(status='rezerv').count(),
+        'empty': Entry.query.filter_by(status='boş').count()
+    }
+    search = request.args.get('search', '')
+    return render_template('index.html', entries=entries, stats=stats, search=search)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+
+        # Kullanıcı adı ve şifre doğrulaması (örnek amaçlı)
+        user = User.query.filter_by(username=username, password=password).first()
+        if user:
+            flash('Giriş başarılı!', 'success')
+            return redirect(url_for('index'))
+        else:
+            flash('Kullanıcı adı veya şifre yanlış.', 'danger')
+
+    return render_template('login.html', form=form)
+
+# Yeni endpoint: add_edit
+@app.route('/add_edit', methods=['GET', 'POST'])
+@app.route('/add_edit/<int:id>', methods=['GET', 'POST'])
+def add_edit(id=None):
+    entry = Entry.query.get_or_404(id) if id else None
+    form = EntryForm(obj=entry)
+
+    if form.validate_on_submit():
+        if not entry:
+            entry = Entry()
+
+        form.populate_obj(entry)
+        db.session.add(entry)
+        db.session.commit()
+        flash('Məlumatlar uğurla qeyd olundu.', 'success')
+        return redirect(url_for('index'))
+
+    return render_template('add_edit.html', form=form, entry=entry)
+
+# Veritabanını başlatma ve uygulamayı çalıştırma
+if __name__ == '__main__':
+    db.create_all()
+    app.run(debug=True)
+
